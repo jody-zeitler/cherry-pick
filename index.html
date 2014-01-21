@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Show Scraper</title>
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+	<link rel="stylesheet" href="css/cherry-pick.css">
+</head>
+<body>
+	<div class="container">
+
+		<div id="options">
+			<div class="inline">
+				<label for="showSelect">TV Show:</label>
+				<select id="showSelect">
+					<option value="arrested_development">Arrested Development</option>
+					<option value="arrow">Arrow</option>
+					<option value="battlestar_galactica">Battlestar Galactica</option>
+					<option value="breaking_bad">Breaking Bad</option>
+					<option value="continuum">Continuum</option>
+					<option value="dexter">Dexter</option>
+					<option value="dollhouse">Dollhouse</option>
+					<option value="farscape">Farscape</option>
+					<option value="firefly">Firefly</option>
+					<option value="game_of_thrones">Game of Thrones</option>
+					<option value="red_dwarf">Red Dwarf</option>
+					<option value="star_trek_next_generation">Star Trek: The Next Generation</option>
+					<option value="the_walking_dead">Walking Dead</option>
+					<option value="weeds">Weeds</option>
+					<option value="x-files">X-Files</option>
+				</select>
+			</div>
+			<div class="inline" style="float:right">
+				<div style="width:190px">Rating <span id="ratingRange"></span></div>
+				<div id="ratingSlider"></div>
+			</div>
+			<div class="inline" style="float:right">
+				<div style="width:150px">Seasons <span id="seasonRange"></span></div>
+				<div id="seasonSlider"></div>
+			</div>
+			<div style="clear:both"></div>
+		</div>
+
+		<div id="holder"></div>
+
+	</div>
+
+	<script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+	<script src="lib/jquery-ui/jquery-ui-1.10.4.custom.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.2/raphael-min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/graphael/0.5.1/g.raphael-min.js"></script>
+	<script src="lib/graphael/g.line-min.js"></script>
+	<script src="js/cherry-pick.js"></script>
+</body>
+</html>
