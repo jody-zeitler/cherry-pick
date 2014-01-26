@@ -22,25 +22,42 @@ def main(args):
 	title_soup = BeautifulSoup(title_res.text)
 
 	series_url = title_soup.select('td.result_text a')[0]['href']
-	series_res = requests.get('{0}{1}'.format(base_url, series_url))
-	
-	season_list = re.findall(r'href="(/title/.*?/episodes\?season=(\d+))', series_res.text)
+	series_id = re.findall(r'tt\d+', series_url)[0]
 
-	if season_filter is not None:
-		season_list = [s for s in season_list if s[1] in season_filter.split(',')]
+	base_season_url = '{0}/title/{1}/episodes'.format(base_url, series_id)
+	series_res = requests.get(base_season_url)
+	series_soup = BeautifulSoup(series_res.text)
+
+	season_list = [int(option['value']) for option in series_soup.select('select#bySeason option') if option['value'].isdigit() and option['value'] > '0']
 
 	if len(season_list) < 1:
 		print('No seasons found')
 		return
+	
+	if season_filter is not None:
+		season_set = set()
+		commas = season_filter.split(',')
+		for segment in commas:
+			if '-' in segment:
+				dashes = segment.split('-')
+				season_set |= set( range(int(dashes[0]), int(dashes[1]) + 1) )
+			else:
+				season_set.add( int(segment) )
+		season_list = [s for s in season_list if s in season_set]
 
 	json_data = []
+
+	if not os.path.isdir('csv'):
+		os.mkdir('csv')
+	if not os.path.isdir('json'):
+		os.mkdir('json')
 
 	with open(os.path.join('csv', query.replace(' ', '_') + '.txt'), 'w') as outfile:
 		print('Season\tEpisode\tTitle\tRating\tSummary')
 		outfile.write('Season\tEpisode\tTitle\tRating\tSummary\n')
 
-		for season in sorted(season_list, key=lambda s: s[1]):
-			season_res = requests.get('{0}{1}'.format(base_url, season[0]))
+		for season in sorted(season_list):
+			season_res = requests.get('{0}?season={1}'.format(base_season_url, season))
 			season_soup = BeautifulSoup(season_res.text)
 			episode_list = season_soup.select('.info a[itemprop="name"]')
 			
