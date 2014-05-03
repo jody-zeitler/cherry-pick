@@ -61,7 +61,8 @@ def main(args):
 	print('Season\tEpisode\tTitle\tRating')
 
 	for season in sorted(season_list):
-		json_data["seasons"].append( get_season(season, series_url) )
+		season_url = '{}?season={}'.format(series_url, season)
+		json_data["seasons"].append( get_season(season, season_url) )
 
 	with open(outpath, 'w') as outfile:
 		outfile.write( json.dumps(json_data) )
@@ -79,8 +80,8 @@ def filter_seasons(season_list, season_filter):
 			season_set.add( int(segment) )
 	return [s for s in season_list if s in season_set]
 
-def get_season(season_number, series_url):
-	season_res = requests.get('{}?season={}'.format(series_url, season_number))
+def get_season(season_number, season_url):
+	season_res = requests.get(season_url)
 	season_soup = BeautifulSoup(season_res.text)
 	episode_list = season_soup.select('.info a[itemprop="name"]')
 
