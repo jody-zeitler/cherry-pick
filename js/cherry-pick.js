@@ -28,11 +28,24 @@
 		currentShow = null;
 
 	/**
+	 * Get color based on index
+	 */
+	var getColor = (function() {
+		var hues = [.6, .2, .05, .1333, .75, 0],
+			sats = [.75, 1, .85, .65],
+			brts = [.75, .5, .65, .85];
+		return function(index) {
+        	return 'hsb(' + hues[index%hues.length] + ',' + sats[Math.floor(index/hues.length)] + ',' + brts[Math.floor(index/hues.length)] + ')';
+        }
+    }());
+
+	/**
 	 * Initialize the chart using a series object
 	 */
 	function makeChart(data) {
 		var axis = [], // x
 			series = [], // y
+			colors = [],
 			episode_counter = 0,
 
 			ratingMin = $ratingSlider.slider('values', 0),
@@ -50,8 +63,11 @@
 				season_series.push(episode['rating']);
 			}
 
-			axis.push(season_axis);
-			series.push(season_series);
+			if (season_axis.length > 0) {
+				axis.push(season_axis);
+				series.push(season_series);
+				colors.push( getColor(s) );
+			}
 		}
 
 		$seasonSlider.slider('destroy');
@@ -69,7 +85,7 @@
 		});
 		$seasonRange.text( $seasonSlider.slider('values', 0) + ' - ' + $seasonSlider.slider('values', 1) );
 
-		drawChart(axis, series, data);
+		drawChart(axis, series, colors, data);
 	}
 
 	/**
@@ -79,6 +95,7 @@
 		var data = currentShow,
 			axis = [],
 			series = [],
+			colors = [],
 			episode_counter = 0,
 
 			seasonMin = $seasonSlider.slider('values', 0),
@@ -101,11 +118,14 @@
 				season_series.push(episode['rating']);
 			}
 
-			axis.push(season_axis);
-			series.push(season_series);
+			if (season_axis.length > 0) {
+				axis.push(season_axis);
+				series.push(season_series);
+				colors.push( getColor(s) );
+			}
 		}
 
-		drawChart(axis, series, data);
+		drawChart(axis, series, colors, data);
 	}
 
 	/**
@@ -129,15 +149,26 @@
 	/**
 	 * Draw the chart within the holder element
 	 */
-	function drawChart(axis, series, data) {
+	function drawChart(axis, series, colors, data) {
 		var $holder = $('#holder').empty();
+
+		if (axis.length < 1) {
+			$holder.html('<div id="progress" class="info-box">No data points - adjust the filters</div>');
+			return;
+		}
 
 		var r = Raphael('holder');
 
 		r.linechart(25, 50, $holder.width() - 50, $holder.height() - 100,
 			axis,
 			series,
-			{ nostroke: false, symbol: 'circle', smooth: true, axis: '0 0 0 1', axisystep: 10 }
+			{
+				symbol: 'circle',
+				smooth: true,
+				axis: '0 0 0 1',
+				axisystep: 10,
+				colors: colors
+			}
 		)
 		.hover(
 			function () {
