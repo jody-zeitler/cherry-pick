@@ -46,6 +46,11 @@ html,body {
 	height: 100%;
 	text-align: center;
 }
+
+	#holder circle {
+		cursor: pointer;
+	}
+	
 	#progress {
 		width:640px;
 		margin:100px auto;

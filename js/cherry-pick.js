@@ -106,28 +106,44 @@
 		});
 	}
 
-	$('#showSelect').change(function() {
-		var title = $(this).val();
-		if ( typeof shows[title] === 'undefined' ) {
-			$('#holder').html('<div id="progress" class="loading-box">Loading...</div>');
-			$.get('json/' + title + '.json')
-				.success(function(data) {
-					shows[title] = data;
-					currentShow = shows[title];
-					makeChart(shows[title]);
-				})
-				.fail(function() {
-					$('#progress').text('! No data found for selected show !');
-				});
-		}
-		else {
-			currentShow = shows[title];
-			makeChart(shows[title]);
-		}
-	}).trigger('change');
+	$('#showSelect')
+		.on('change', function() {
+			var title = $(this).val();
+			window.location.hash = title;
+			if ( typeof shows[title] === 'undefined' ) {
+				$('#holder').html('<div id="progress" class="loading-box">Loading...</div>');
+				$.get('json/' + title + '.json')
+					.success(function(data) {
+						shows[title] = data;
+						currentShow = shows[title];
+						makeChart(shows[title]);
+					})
+					.fail(function() {
+						$('#progress').text('! No data found for selected show !');
+					});
+			}
+			else {
+				currentShow = shows[title];
+				makeChart(shows[title]);
+			}
+		});
+		
+	$(window)
+		.on('resize', function() {
+			$('#showSelect').trigger('change');
+		})
+		.on('hashchange', function() {
+			$('#showSelect').find('option[value="' + window.location.hash.slice(1) + '"]').prop('selected', true).end().trigger('change');
+		});
 
-	$(window).resize(function() {
-		$('#showSelect').trigger('change');
+	$.get('shows', function(data) {
+		if (data && data.length > 0) {
+			$('#showSelect').empty();
+			for (var i=0; i < data.length; i++) {
+				$('#showSelect').append('<option value="' + data[i] + '">' + data[i].replace(/_/g, ' ') + '</option>');
+			}
+			$('#showSelect').find('option[value="' + window.location.hash.slice(1) + '"]').prop('selected', true).end().trigger('change');
+		}
 	});
 
 })(jQuery);
