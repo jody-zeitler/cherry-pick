@@ -125,7 +125,7 @@ def get_episode(episode_url):
 		return None
 
 	try:
-		print('{:d}\t{:d}\t{:%Y-%m-%d}\t{}\t{:.1f}'.format(season_number, episode_number, episode_airdate or datetime(), episode_name, episode_rating))
+		print('{:d}\t{:d}\t{:%Y-%m-%d}\t{}\t{:.1f}'.format(season_number, episode_number, episode_airdate or datetime.now(), episode_name, episode_rating))
 	except UnicodeEncodeError:
 		print('--Can\'t print unicode sequence--')
 
