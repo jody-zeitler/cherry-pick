@@ -14,11 +14,13 @@ def main(args):
 	parser.add_argument('--seasons', help='season set or range')
 	parser.add_argument('--years', help='year set or range')
 	parser.add_argument('-o', '--outfile', help='output JSON location')
+	parser.add_argument('--merge', action='store_true', help='merge with existing JSON file')
 	args = parser.parse_args()
 
 	query = args.query
 	season_filter = args.seasons
 	outpath = args.outfile
+	do_merge = args.merge
 
 	if outpath and not os.path.isdir( os.path.dirname( os.path.abspath(outpath) ) ):
 		print('output path does not exist!')
@@ -58,7 +60,7 @@ def main(args):
 	if season_filter is not None:
 		season_list = filter_seasons(season_list, season_filter)
 
-	print('Season\tEpisode\tTitle\tRating')
+	print('Season\tEpisode\tAir Date\tTitle\tRating')
 
 	for season in sorted(season_list):
 		season_url = '{}?season={}'.format(series_url, season)
@@ -96,10 +98,10 @@ def get_season(season_number, season_url):
 		episode = get_episode(episode_url)
 		
 		if episode:	
-			if episode["airdate"] and episode["airdate"].year < season_data["season_year"]:
-				season_data["season_year"] = episode["airdate"].year
-			
-			episode["airdate"] = episode["airdate"].isoformat()
+			if episode["airdate"]:
+				if episode["airdate"].year < season_data["season_year"]:
+					season_data["season_year"] = episode["airdate"].year
+				episode["airdate"] = episode["airdate"].isoformat()
 			
 			season_data["episodes"].append(episode)
 
@@ -123,7 +125,7 @@ def get_episode(episode_url):
 		return None
 
 	try:
-		print('{0:d}\t{1:d}\t{2}\t{3:.1f}'.format(season_number, episode_number, episode_name, episode_rating))
+		print('{:d}\t{:d}\t{:%Y-%m-%d}\t{}\t{:.1f}'.format(season_number, episode_number, episode_airdate or datetime(), episode_name, episode_rating))
 	except UnicodeEncodeError:
 		print('--Can\'t print unicode sequence--')
 
