@@ -57,7 +57,9 @@ def main(args):
 
     for season in sorted(season_list):
         season_url = '{}?season={}'.format(series_url, season)
-        json_data["seasons"].append( get_season(season, season_url) )
+        season_data = get_season(season, season_url)
+        if len(season_data['episodes']) > 0:
+            json_data["seasons"].append(season_data)
 
     outjson = json.dumps(json_data)
 

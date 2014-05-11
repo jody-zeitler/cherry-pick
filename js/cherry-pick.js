@@ -74,8 +74,8 @@
 		$seasonSlider.slider({
 			range: true,
 			min: 1,
-			max: data.season_count,
-			values: [1, data.season_count],
+			max: data.seasons.length,
+			values: [1, data.seasons.length],
 			slide: function(event, ui) {
 				$seasonRange.text( ui.values[0] + ' - ' + ui.values[1] );
 			},
@@ -199,6 +199,9 @@
 				$('#holder').html('<div id="progress" class="loading-box">Loading...</div>');
 				$.get('series/' + series_id)
 					.success(function(data) {
+                        data.seasons.sort(function(a, b) {
+                            return a.season_number - b.season_number;
+                        });
 						currentShow = shows[series_id] = data;
 						makeChart(currentShow);
 					})
