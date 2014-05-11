@@ -193,23 +193,22 @@
 		 * Initialize and redraw the chart.
 		 */
 		.on('change', function() {
-			var title = $(this).val();
-			window.location.hash = title;
-			if ( typeof shows[title] === 'undefined' ) {
+			var series_id = $(this).val();
+			window.location.hash = series_id;
+			if ( typeof shows[series_id] === 'undefined' ) {
 				$('#holder').html('<div id="progress" class="loading-box">Loading...</div>');
-				$.get('json/' + title + '.json')
+				$.get('series/' + series_id)
 					.success(function(data) {
-						shows[title] = data;
-						currentShow = shows[title];
-						makeChart(shows[title]);
+						currentShow = shows[series_id] = data;
+						makeChart(currentShow);
 					})
 					.fail(function() {
 						$('#progress').text('! No data found for selected show !');
 					});
 			}
 			else {
-				currentShow = shows[title];
-				makeChart(shows[title]);
+				currentShow = shows[series_id];
+				makeChart(shows[series_id]);
 			}
 		});
 		
@@ -225,12 +224,19 @@
 	 * Try to fetch a list of shows from the server and populate the series options list.
 	 * Select a show based on location hash or the first option and draw the chart.
 	 */
-	$.get('shows')
+	$.get('series.json')
 		.done(function(data) {
-			if (data && data.length > 0) {
+			data = data || {};
+			var series = data.series || [];
+            series.sort(function(a, b) {
+                if (a.series_name > b.series_name) { return 1; }
+                if (a.series_name < b.series_name) { return -1; }
+                return 0;
+            });
+			if (series.length) {
 				$('#showSelect').empty();
-				for (var i=0; i < data.length; i++) {
-					$('#showSelect').append('<option value="' + data[i] + '">' + data[i].replace(/_/g, ' ') + '</option>');
+				for (var i=0, show; show=series[i]; i++) {
+					$('#showSelect').append('<option value="' + show.series_id + '">' + show.series_name + '</option>');
 				}
 			}
 		})

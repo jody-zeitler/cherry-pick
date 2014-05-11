@@ -21,17 +21,21 @@ def main(args):
 
     with open(args.input, 'r') as infile:
         try:
-            instring = infile.read()
-            injson = json.loads(instring)
-            if not injson['series_id']:
+            injson = json.loads( infile.read() )
+            
+            if 'series_id' not in injson.keys():
                 print('no series_id present in JSON')
                 return 2
-            id = existence_check(injson['series_id'])
-            if id:
-                print('updating document')
-                update_document(id, injson)
+
+            series_id = injson['series_id']
+            series_name = injson['series_name']
+            db_id = existence_check(injson['series_id'])
+
+            if db_id:
+                print('updating document for {}'.format(series_name))
+                update_document(db_id, injson)
             else:
-                print('inserting document')
+                print('inserting document for {}'.format(series_name))
                 insert_document(injson)
         except IOError:
             print('could not read file')
@@ -42,7 +46,6 @@ def main(args):
 
     conn.close()
 
-    print('Done!')
     return 0
 
 def connect_db(host, port, db):
