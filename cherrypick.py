@@ -23,12 +23,16 @@ def main(args):
     if outpath and not os.path.isdir( os.path.dirname( os.path.abspath(outpath) ) ):
         print_err('output path does not exist!')
         return 1
-    
-    title_res = requests.get('{}/find?q={}&s=tt'.format(BASE_URL, query))
-    title_soup = BeautifulSoup(title_res.text)
 
-    result_url = title_soup.select('td.result_text a')[0]['href']
-    series_id = re.findall(r'tt\d+', result_url)[0]
+    series_id = ''
+    if query.startswith('tt'):
+        series_id = query
+    else:    
+        title_res = requests.get('{}/find?q={}&s=tt'.format(BASE_URL, query))
+        title_soup = BeautifulSoup(title_res.text)
+
+        result_url = title_soup.select('td.result_text a')[0]['href']
+        series_id = re.findall(r'tt\d+', result_url)[0]
 
     series_url = '{}/title/{}/episodes'.format(BASE_URL, series_id)
     series_res = requests.get(series_url)
