@@ -22,7 +22,6 @@
 	});
 	$ratingRange.text( $ratingSlider.slider('values', 0).toFixed(1) + ' - ' + $ratingSlider.slider('values', 1).toFixed(1) );
 
-
 	// global data
 	var shows = {},
 		currentShow = null;
@@ -194,6 +193,9 @@
 		 */
 		.on('change', function() {
 			var series_id = $(this).val();
+            if (series_id == null) {
+                return;
+            }
 			window.location.hash = series_id;
 			if ( typeof shows[series_id] === 'undefined' ) {
 				$('#holder').html('<div id="progress" class="loading-box">Loading...</div>');
@@ -229,8 +231,7 @@
 	 */
 	$.get('series.json')
 		.done(function(data) {
-			data = data || {};
-			var series = data.series || [];
+			var series = data || [];
             series.sort(function(a, b) {
                 if (a.series_name > b.series_name) { return 1; }
                 if (a.series_name < b.series_name) { return -1; }
@@ -246,6 +247,7 @@
 		.always(function() {
 			$('#showSelect').find('option[value="' + window.location.hash.slice(1) + '"]').prop('selected', true);
 			$('#showSelect').trigger('change');
+            $('#showSelect').combobox();
 		});
 
 })(jQuery);

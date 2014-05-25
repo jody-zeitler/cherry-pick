@@ -21,7 +21,11 @@ def main(args):
         with open(args.input, 'r') as infile:
             injson = json.loads( infile.read() )
     else:
-        injson = json.loads( sys.stdin.read() )
+        pipein = sys.stdin.read()
+        if len(pipein) > 0:
+            injson = json.loads(pipein)
+        else:
+            return 2
             
     if 'series_id' not in injson.keys():
         print('no series_id present in JSON')

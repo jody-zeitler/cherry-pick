@@ -4,29 +4,32 @@
 	<meta charset="UTF-8">
 	<title>Cherry Pick</title>
 	<link rel="stylesheet" href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="../lib/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="lib/bootstrap-combobox/css/bootstrap-combobox.css">
 	<link rel="stylesheet" href="css/cherry-pick.css">
 </head>
 <body>
 	<div class="container">
 
-		<div id="options">
-			<div class="inline">
-				<label for="showSelect">TV Show:</label>
-				<select id="showSelect">
-					<option value="futurama">Futurama</option>
-					<option value="game_of_thrones">Game of Thrones</option>
-				</select>
+		<form id="options" class="inline clearfix">
+			<div class="form-group col-md-6">
+				<label for="showSelect" class="col-md-2">TV Show:</label>
+                <div class="col-md-8">
+				    <select id="showSelect" class="form-control">
+					    <option value="futurama">Futurama</option>
+					    <option value="game_of_thrones">Game of Thrones</option>
+				    </select>
+                </div>
 			</div>
-			<div class="inline" style="float:right">
-				<div style="width:190px">Rating <span id="ratingRange"></span></div>
-				<div id="ratingSlider"></div>
+			<div class="form-group col-md-3">
+				<label for="ratingSlider" class="col-md-6">Rating <span id="ratingRange"></span></label>
+				<div id="ratingSlider" class="col-md-6"></div>
 			</div>
-			<div class="inline" style="float:right">
-				<div style="width:150px">Seasons <span id="seasonRange"></span></div>
-				<div id="seasonSlider"></div>
+			<div class="form-group col-md-3">
+				<label for="seasonSlider" class="col-md-6">Seasons <span id="seasonRange"></span></label>
+				<div id="seasonSlider" class="col-md-6"></div>
 			</div>
-			<div style="clear:both"></div>
-		</div>
+		</form>
 
 		<div id="holder"></div>
 
@@ -34,6 +37,7 @@
 
 	<script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
 	<script src="lib/jquery-ui/jquery-ui-1.10.4.custom.min.js"></script>
+    <script src="lib/bootstrap-combobox/js/bootstrap-combobox.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.2/raphael-min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/graphael/0.5.1/g.raphael-min.js"></script>
 	<script src="lib/graphael/g.line-min.js"></script>
