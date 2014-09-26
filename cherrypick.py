@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 
+# built-in
 import sys, os, re, json, argparse
 from datetime import datetime
 
+# pip
 import requests
 from bs4 import BeautifulSoup
+
+# local
+import connector
 
 BASE_URL = 'http://www.imdb.com'
 
@@ -14,16 +19,45 @@ def main(args):
     parser.add_argument('--seasons', help='season set or range')
     parser.add_argument('--years', help='year set or range')
     parser.add_argument('-o', '--outfile', help='output JSON location')
+    parser.add_argument('--db', '--database', help='database connection string "host:port/db"')
+    parser.add_argument('--pipe', action='store_true', help='pipe JSON to stdout')
     args = parser.parse_args()
 
     query = args.query
     season_filter = args.seasons
     outpath = args.outfile
+    outdb = args.db
+    pipe = args.pipe
 
-    if outpath and not os.path.isdir( os.path.dirname( os.path.abspath(outpath) ) ):
-        print_err('output path does not exist!')
-        return 1
+    pick_cherries(args.query, args.seasons, args.outfile, args.db, args.pipe)
 
+def pick_cherries(query, season_filter=None, outpath=None, outdb=None, pipe=False):
+    file_connector = None
+    db_connector = None
+
+    if outpath:
+        if not os.path.isdir( os.path.dirname( os.path.abspath(outpath) ) ):
+            print_err('output path does not exist!')
+            return 1
+        file_connector = connector.JSONFile(outpath)
+
+    if outdb:
+        (host, port, db) = re.compile(r'[:/]').split(outdb)
+        db_connector = connector.RethinkDB(host, port, db)
+        db_connector.test()
+
+    json_data = gather_data(query, season_filter)
+
+    if file_connector:
+        file_connector.write(json_data)
+
+    if db_connector:
+        db_connector.write(json_data)
+
+    if pipe is True:
+        print(json.dumps(json_data))
+
+def gather_data(query, season_filter=None):
     series_id = ''
     if query.startswith('tt'):
         series_id = query
@@ -65,17 +99,11 @@ def main(args):
         if len(season_data['episodes']) > 0:
             json_data["seasons"].append(season_data)
 
-    outjson = json.dumps(json_data)
-
-    if outpath:
-        with open(outpath, 'w') as outfile:
-            outfile.write(outjson)
-
-    print(outjson)
+    return json_data
 
 def filter_seasons(season_list, season_filter):
     season_set = set()
-    commas = season_filter.split(',')
+    commas = str(season_filter).split(',')
     for segment in commas:
         if '-' in segment:
             dashes = segment.split('-')

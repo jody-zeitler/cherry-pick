@@ -1,47 +1,39 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Refresh database documents for any current TV series
 
-import sys, os, subprocess
+import sys
 from datetime import datetime, timedelta
 import rethinkdb as r
 
+from cherrypick import pick_cherries
+
+DB_HOST = 'localhost'
+DB_PORT = '28015'
+DB_DB   = 'cherry'
+
+TIMEZONE = '-06:00'
+DAYS_AGO = 21 # days since last episode aired
 
 def main(args):
-    conn = r.connect(host='localhost', port=28015, db='cherry').repl()
+    with r.connect(host=DB_HOST, port=DB_PORT, db=DB_DB).repl() as conn:
+        today = datetime.now(r.make_timezone(TIMEZONE))
+        threeweeks = today - timedelta(days=DAYS_AGO)
 
-    today = datetime.now(r.make_timezone('-06:00'))
-    threeweeks = today - timedelta(weeks=3)
-
-    series = res = r.table('series').map(
-        lambda series:
-            series['seasons'].filter(
-                lambda season: season['episodes'].filter(
-                    lambda ep: r.iso8601(ep['airdate'], default_timezone='-06:00').during(threeweeks, today)
-                ).count().gt(0)
-            ).pluck('season_number').merge(series.pluck('series_id', 'series_name'))
-    ).reduce(lambda a, b: a + b).run()
+        series = res = r.table('series').map(
+            lambda series:
+                series['seasons'].filter(
+                    lambda season: season['episodes'].filter(
+                        lambda ep: r.iso8601(ep['airdate'], default_timezone=TIMEZONE).during(threeweeks, today)
+                    ).count().gt(0)
+                ).pluck('season_number').merge(series.pluck('series_id', 'series_name'))
+        ).reduce(lambda a, b: a + b).run()
 
     if len(series) < 1:
         print("No current series in database")
 
     for s in series:
-        pick = subprocess.Popen([
-            '/opt/nodejs/www/cherrypick/cherrypick.py',
-            str(s['series_id']),
-            '--seasons',
-            str(s['season_number'])
-        ], stdout=subprocess.PIPE)
-        (injson, err) = pick.communicate()
-        
-        update = subprocess.Popen([
-            '/opt/nodejs/www/cherrypick/rethink_import.py',
-            '-d',
-            'localhost:28015/cherry'
-        ], stdin=subprocess.PIPE)
-        update.communicate(injson)
-
-    conn.close()
+        pick_cherries(s['series_id'], s['season_number'], outdb='{}:{}/{}'.format(DB_HOST, DB_PORT, DB_DB))
 
 if __name__=="__main__": sys.exit(main(sys.argv))
 
