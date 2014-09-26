@@ -14,6 +14,7 @@ import connector
 BASE_URL = 'http://www.imdb.com'
 
 def main(args):
+    """Turn arguments into function parameters."""
     parser = argparse.ArgumentParser(description='Fetch TV show information from IMDB and store in JSON format.')
     parser.add_argument('query', help='title query to search on')
     parser.add_argument('--seasons', help='season set or range')
@@ -23,15 +24,10 @@ def main(args):
     parser.add_argument('--pipe', action='store_true', help='pipe JSON to stdout')
     args = parser.parse_args()
 
-    query = args.query
-    season_filter = args.seasons
-    outpath = args.outfile
-    outdb = args.db
-    pipe = args.pipe
-
     pick_cherries(args.query, args.seasons, args.outfile, args.db, args.pipe)
 
 def pick_cherries(query, season_filter=None, outpath=None, outdb=None, pipe=False):
+    """Common entry point for command-line and imports."""
     file_connector = None
     db_connector = None
 
@@ -58,6 +54,7 @@ def pick_cherries(query, season_filter=None, outpath=None, outdb=None, pipe=Fals
         print(json.dumps(json_data))
 
 def gather_data(query, season_filter=None):
+    """Run the query and return series data as a dictionary."""
     series_id = ''
     if query.startswith('tt'):
         series_id = query
@@ -102,6 +99,7 @@ def gather_data(query, season_filter=None):
     return json_data
 
 def filter_seasons(season_list, season_filter):
+    """Filter discovered seasons using a filter."""
     season_set = set()
     commas = str(season_filter).split(',')
     for segment in commas:
@@ -113,6 +111,7 @@ def filter_seasons(season_list, season_filter):
     return [s for s in season_list if s in season_set]
 
 def get_season(season_number, season_url):
+    """Return data for a particular season."""
     season_res = requests.get(season_url)
     season_soup = BeautifulSoup(season_res.text)
     episode_list = season_soup.select('.info a[itemprop="name"]')
@@ -138,6 +137,7 @@ def get_season(season_number, season_url):
     return season_data
 
 def get_episode(episode_url):
+    """Return data for a particular episode."""
     episode_res = requests.get(episode_url)
     episode_soup = BeautifulSoup(episode_res.text)
 
@@ -170,24 +170,28 @@ def get_episode(episode_url):
     }
 
 def get_first(collection):
+    """Get the first text content of a list of DOM nodes or return empty string."""
     if len(collection) > 0:
         return collection[0].get_text(strip=True)
     else:
         return ''
 
 def try_cast(value, cast=str):
+    """Cast the value to a type or return the default value of the type."""
     try:
         return cast(value)
     except:
         return cast()
 
 def parse_date(value):
+    """Convert IMDB date string into a datetime object."""
     try:
         return datetime.strptime( value.replace('.', ''), '(%d %b %Y)' ).date()
     except:
         return None
 
 def print_err(line):
+    """Print to stderr."""
     return print(line, file=sys.stderr)
 
 if __name__=='__main__': sys.exit(main(sys.argv))
