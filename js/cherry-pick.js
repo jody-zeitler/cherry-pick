@@ -195,7 +195,7 @@
 			var series_id = $(this).val();
             if (series_id == null) {
                 return;
-            }
+            }      
 			window.location.hash = series_id;
 			if ( typeof shows[series_id] === 'undefined' ) {
 				$('#holder').html('<div id="progress" class="loading-box">Loading...</div>');
@@ -215,6 +215,7 @@
 				currentShow = shows[series_id];
 				makeChart(shows[series_id]);
 			}
+            setTimeout(function() { $(':focus').blur(); }, 50);
 		});
 		
 	$(window)
@@ -249,5 +250,10 @@
 			$('#showSelect').trigger('change');
             $('#showSelect').combobox();
 		});
+
+    $(document).on('focus', '.combobox-container input.form-control', function() {
+        var input = this;
+        setTimeout(function() { input.select(); }, 20);
+    });
 
 })(jQuery);
