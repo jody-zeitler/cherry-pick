@@ -22,6 +22,9 @@ def main(args):
             ).pluck('season_number').merge(series.pluck('series_id', 'series_name'))
     ).reduce(lambda a, b: a + b).run()
 
+    if len(series) < 1:
+        print("No current series in database")
+
     for s in series:
         pick = subprocess.Popen([
             '/opt/nodejs/www/cherrypick/cherrypick.py',
@@ -39,22 +42,6 @@ def main(args):
         update.communicate(injson)
 
     conn.close()
-
-
-def existence_check(series_id):
-    for doc in r.table('series').filter({'series_id': series_id}).run():
-        return doc
-    return None
-
-
-def update_document(document, data):
-    for season in document['seasons']:
-        new_season = [s for s in data['seasons'] if s['season_number'] == season['season_number']]
-        if len(new_season) == 0:
-            data['seasons'].insert(0, season)
-
-    return r.table('series').get(document['id']).update(data).run()
-
 
 if __name__=="__main__": sys.exit(main(sys.argv))
 
