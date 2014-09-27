@@ -1,5 +1,8 @@
 (function($) {
 
+	var LIST_ENDPOINT = 'series.json';
+	var SHOW_ENDPOINT = 'series/{id}';
+
 	// init sliders
 	var $seasonSlider = $('#seasonSlider'),
 		$seasonRange  = $('#seasonRange'),
@@ -199,7 +202,7 @@
 			window.location.hash = series_id;
 			if ( typeof shows[series_id] === 'undefined' ) {
 				$('#holder').html('<div id="progress" class="loading-box">Loading...</div>');
-				$.get('series/' + series_id)
+				$.get(SHOW_ENDPOINT.replace('{id}', series_id))
 					.success(function(data) {
 						data.seasons.sort(function(a, b) {
 							return a.season_number - b.season_number;
@@ -230,7 +233,7 @@
 	 * Try to fetch a list of shows from the server and populate the series options list.
 	 * Select a show based on location hash or the first option and draw the chart.
 	 */
-	$.get('series.json')
+	$.get(LIST_ENDPOINT)
 		.done(function(data) {
 			var series = data || [];
 			series.sort(function(a, b) {
