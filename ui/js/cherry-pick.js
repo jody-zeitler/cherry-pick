@@ -34,9 +34,9 @@
 			sats = [.75, 1, .85, .65],
 			brts = [.75, .5, .65, .85];
 		return function(index) {
-        	return 'hsb(' + hues[index%hues.length] + ',' + sats[Math.floor(index/hues.length)] + ',' + brts[Math.floor(index/hues.length)] + ')';
-        }
-    }());
+			return 'hsb(' + hues[index%hues.length] + ',' + sats[Math.floor(index/hues.length)] + ',' + brts[Math.floor(index/hues.length)] + ')';
+		}
+	}());
 
 	/**
 	 * Initialize the chart using a series object
@@ -193,17 +193,17 @@
 		 */
 		.on('change', function() {
 			var series_id = $(this).val();
-            if (series_id == null) {
-                return;
-            }      
+			if (series_id == null) {
+				return;
+			}      
 			window.location.hash = series_id;
 			if ( typeof shows[series_id] === 'undefined' ) {
 				$('#holder').html('<div id="progress" class="loading-box">Loading...</div>');
 				$.get('series/' + series_id)
 					.success(function(data) {
-                        data.seasons.sort(function(a, b) {
-                            return a.season_number - b.season_number;
-                        });
+						data.seasons.sort(function(a, b) {
+							return a.season_number - b.season_number;
+						});
 						currentShow = shows[series_id] = data;
 						makeChart(currentShow);
 					})
@@ -215,7 +215,7 @@
 				currentShow = shows[series_id];
 				makeChart(shows[series_id]);
 			}
-            setTimeout(function() { $(':focus').blur(); }, 50);
+			setTimeout(function() { $(':focus').blur(); }, 50);
 		});
 		
 	$(window)
@@ -233,11 +233,11 @@
 	$.get('series.json')
 		.done(function(data) {
 			var series = data || [];
-            series.sort(function(a, b) {
-                if (a.series_name > b.series_name) { return 1; }
-                if (a.series_name < b.series_name) { return -1; }
-                return 0;
-            });
+			series.sort(function(a, b) {
+				if (a.series_name > b.series_name) { return 1; }
+				if (a.series_name < b.series_name) { return -1; }
+				return 0;
+			});
 			if (series.length) {
 				$('#showSelect').empty();
 				for (var i=0, show; show=series[i]; i++) {
@@ -248,12 +248,15 @@
 		.always(function() {
 			$('#showSelect').find('option[value="' + window.location.hash.slice(1) + '"]').prop('selected', true);
 			$('#showSelect').trigger('change');
-            $('#showSelect').combobox();
+			$('#showSelect').combobox();
 		});
 
-    $(document).on('focus', '.combobox-container input.form-control', function() {
-        var input = this;
-        setTimeout(function() { input.select(); }, 20);
-    });
+	/**
+	 * Select all text on combobox focus
+	 */
+	$(document).on('focus', '.combobox-container input.form-control', function() {
+		var input = this;
+		setTimeout(function() { input.select(); }, 20);
+	});
 
 })(jQuery);

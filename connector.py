@@ -20,7 +20,7 @@ class JSONFile(object):
 class RethinkDB(object):
     def __init__(self, host, port, db, replace=False):
         if r is None:
-            raise Exception("RethinkDB driver is not installed! Install it with pip/pip3!")
+            raise Exception("RethinkDB driver is not installed! Install it with 'pip3 install rethinkdb'!")
 
         self.host = host
         self.port = port
